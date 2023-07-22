@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -23,13 +24,16 @@ public class MainFrame implements ActionListener
     
     
     //Variables
+    
+    Temporizador temp = new Temporizador(10);
+    int cronometroCreado = 0;
    private JFrame frame;
    private JPanel paneles[];
    private JPanel subPaneles[][] = new JPanel[2][3];;
    final private int filas[] = {1, 1, 1};
    final private int columnas[] = {1, 3, 3};
    private JLabel titulos[] = new JLabel[7];
-   private JProgressBar barraProgreso;
+   private static JProgressBar barraProgreso;
    private JPanel subSubPaneles[][] = new JPanel[2][3];
    private String titulosNombre[] = {"TO-DO", "Tareas", "Cronometro", "Tiempo", "Calendario", "Música", "Trabajado"};
    private Font fuentes[] = {new Font("Papyrus",Font.BOLD  , 50), new Font("Scheherazade", Font.BOLD    , 20)};
@@ -41,7 +45,7 @@ public class MainFrame implements ActionListener
    private JButton tareasBoton;
    
    //Variables de cronometro
-   private JLabel cronometro;
+   static private JLabel cronometro;
    private JPanel cronometroPanel;
    private JButton cronometroBoton[] = new JButton[2];
    
@@ -296,9 +300,67 @@ public class MainFrame implements ActionListener
        subSubPaneles[row][column].add(trabajado);
        subSubPaneles[row][column].add(trabajadoBoton);
    }
-
+   //Setters and getters (static)
+    public static void setCronometro(String texto)
+    {
+        cronometro.setText("");
+        cronometro.setText(texto);
+    }
+    
+    
+    public static void setBarraProgreso(int value)
+    {
+        barraProgreso.setValue(value);
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("Click!");
+        if (e.getSource() == cronometroBoton[0])
+        {
+            if (cronometroCreado == 0)
+            {
+                temp.start();
+                cronometroCreado = 1;
+            }
+            else
+            {
+                if(temp.getSigaCronometro() == true)
+                {
+                    temp.setSigaCronometro(false);
+                }
+                else
+                {
+                    temp.setSigaCronometro(true);
+                }
+            }
+        }
+        else if(e.getSource() == cronometroBoton[1])
+        {
+            temp.setSigaCronometro(false);
+            temp.setTiempo(0);
+            barraProgreso.setValue(0);
+            MainFrame.setCronometro("Tiempo 0");
+        }
+        else if(e.getSource() == musicaBoton[0])
+        {
+        
+        }
+        else if(e.getSource() == musicaBoton[1])
+        {
+        
+        }
+        else if(e.getSource() == tareasBoton)
+        {
+        
+        }
+        else if(e.getSource() == calendario)
+        {
+        
+        }
+        else if(e.getSource() == trabajadoBoton)
+        {
+        
+        }
     }
 }
