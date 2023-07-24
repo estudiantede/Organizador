@@ -6,11 +6,17 @@ package organizador;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,8 +31,14 @@ public class MainFrame implements ActionListener
     
     //Variables
     
-    Temporizador temp = new Temporizador(10);
+    Temporizador temp;
     int cronometroCreado = 0;
+    
+    Sound sound = new Sound(0);
+    int sonidoCreado = 0;
+    
+    static int t = 20;
+    
    private JFrame frame;
    private JPanel paneles[];
    private JPanel subPaneles[][] = new JPanel[2][3];;
@@ -50,7 +62,7 @@ public class MainFrame implements ActionListener
    private JButton cronometroBoton[] = new JButton[2];
    
    //Variables de tiempo
-   private JLabel tiempo[]; //Esta tiene que ser una clase que tenga un wheel moved listener, asi que teoricamente no sería tan asi
+   private static Scroll tiempo[]; //Esta tiene que ser una clase que tenga un wheel moved listener, asi que teoricamente no sería tan asi
    
    //Variables de calendario
    private JButton calendario;
@@ -116,6 +128,7 @@ public class MainFrame implements ActionListener
        creacionCalendario(1, 0);
        creacionMusica(1, 1);
        creacionTrabajado(1, 2);
+       
    } //Fin del constructor
    
    //Este método crea el JFrame dandole sus caracteristicas
@@ -127,6 +140,7 @@ public class MainFrame implements ActionListener
        frame.setVisible(true);
        frame.setLayout(new GridLayout(3, 1));
        frame.setBackground(new Color(227, 244, 244));
+       frame.setMinimumSize(new Dimension(600, 700));
        return frame;
    }
    
@@ -144,7 +158,7 @@ public class MainFrame implements ActionListener
    {
        subPaneles[row][column] = new JPanel();
        subPaneles[row][column].setLayout(new BorderLayout());
-       subPaneles[row][column].setBackground(new Color(0,0,0,0));
+        subPaneles[row][column].setOpaque(false);
        return subPaneles[row][column];
    }
    
@@ -153,7 +167,7 @@ public class MainFrame implements ActionListener
    {
        subSubPaneles[row][column] = new JPanel();
        subSubPaneles[row][column].setLayout(new GridLayout());
-       subSubPaneles[row][column].setBackground(new Color(0,0,0,0));
+       subSubPaneles[row][column].setOpaque(false);
        return subSubPaneles[row][column];
    }
    
@@ -238,11 +252,14 @@ public class MainFrame implements ActionListener
    
    private void creacionTiempo(int row, int column)
    {
-       tiempo  = new JLabel[3];
+       tiempo  = new Scroll[3];
        
        for(int i = 0; i < 3; i++)
        {
-           tiempo[i] = new JLabel("Hola");
+           tiempo[i] = new Scroll();
+           tiempo[i].setText(String.valueOf(21 - i));
+           tiempo[i].setVerticalAlignment(JLabel.CENTER);
+           tiempo[i].setHorizontalAlignment(JLabel.CENTER);
            tiempo[i].setBackground(colores[3]);
            tiempo[i].setOpaque(true);
        }
@@ -310,16 +327,75 @@ public class MainFrame implements ActionListener
     
     public static void setBarraProgreso(int value)
     {
+        System.out.println("El valor es: " + value);
         barraProgreso.setValue(value);
+    }
+    
+    public static void setTiempo(int value)
+    {
+        if (value > 0)
+        {
+            if (t > 60)
+            {
+            
+            }
+            else if (t < 60)
+            {
+            t += value;
+            if (t == 60)
+            {
+                tiempo[0].setText(String.valueOf("Tiempo>60"));
+                tiempo[1].setText(String.valueOf(t));
+                tiempo[2].setText(String.valueOf(t - 1));
+            }
+            else
+            {
+            tiempo[0].setText(String.valueOf(t +1));
+            tiempo[1].setText(String.valueOf(t));
+            tiempo[2].setText(String.valueOf(t - 1));
+            }
+            }
+        }
+        else if(value < 0)
+        {
+            if (t < 1)
+            {
+            
+            }
+            else if(t > 1)
+            {
+                t += value;
+                if (t-1 == 0)
+                {
+                    tiempo[0].setText(String.valueOf(t + 1));
+                    tiempo[1].setText(String.valueOf(t));
+                    tiempo[2].setText(String.valueOf("Tiempo <0"));
+                }
+                else
+                {
+                tiempo[0].setText(String.valueOf(t +1));
+                tiempo[1].setText(String.valueOf(t));
+                tiempo[2].setText(String.valueOf(t - 1));
+                }
+            }
+        }
+    }
+    
+    private int getTiempo()
+    {
+        return Integer.parseInt(tiempo[1].getText());
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("Click!");
+        //Botones cronometro
         if (e.getSource() == cronometroBoton[0])
         {
-            if (cronometroCreado == 0)
+            if(cronometroCreado == 0)
             {
+                temp = new Temporizador(getTiempo()*60);
+                barraProgreso.setMaximum(getTiempo()*60);
                 temp.start();
                 cronometroCreado = 1;
             }
@@ -337,27 +413,66 @@ public class MainFrame implements ActionListener
         }
         else if(e.getSource() == cronometroBoton[1])
         {
+            
             temp.setSigaCronometro(false);
             temp.setTiempo(0);
+            temp.setExit(false);
             barraProgreso.setValue(0);
             MainFrame.setCronometro("Tiempo 0");
+            cronometroCreado = 0;
         }
+        
+         //Botones musica
         else if(e.getSource() == musicaBoton[0])
         {
-        
+            if(sound.getSonandoMusica() == 0)
+            {
+                try {
+                    sound.ponerSonido();
+                } catch (UnsupportedAudioFileException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (LineUnavailableException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            else
+            {
+                sound.pararMusica();
+            }
+            
+            
         }
         else if(e.getSource() == musicaBoton[1])
         {
-        
+            sound.pararMusica();
+            sound.setNum();
+            sound.setNuevoAudio(0);
+            try {
+                sound.ponerSonido();
+            } catch (UnsupportedAudioFileException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (LineUnavailableException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        
+         //Boton tarea
         else if(e.getSource() == tareasBoton)
         {
         
         }
+        
+         //Boton calendario
         else if(e.getSource() == calendario)
         {
         
         }
+        
+         //Botones trabajado
         else if(e.getSource() == trabajadoBoton)
         {
         

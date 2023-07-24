@@ -14,26 +14,31 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class Sound {
     String name;
-    File file;
+    int  num;
+    File files[];
     private int SonandoMusica;
     private int nuevoAudio;
     Clip clip;
     
-    public Sound(File file)
+    public Sound(int snum)
     {
-        this.file = file;
+        this.files = findAllFilesInFolder(new File("C:\\Users\\Avaya\\Documents\\NetBeansProjects\\Organizador\\Musica"));
         this.SonandoMusica = 0;
         this.nuevoAudio = 0;
-        this.name = file.getName();
+        this.name = files[num].getName();
         
         this.name = this.name.substring(0, this.name.indexOf('.'));
+    }
+    
+    public static File[] findAllFilesInFolder(File folder) {
+     return folder.listFiles();
     }
     
     public void ponerSonido() throws UnsupportedAudioFileException, LineUnavailableException, IOException
     {
         if(nuevoAudio == 0)
         {
-            AudioInputStream audioStream  = AudioSystem.getAudioInputStream(file);
+            AudioInputStream audioStream  = AudioSystem.getAudioInputStream(files[num]);
             clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.loop(10);
@@ -43,6 +48,16 @@ public class Sound {
         clip.start();
         this.SonandoMusica = 1;
         
+    }
+    
+        public int getNuevoAudio()
+    {
+        return this.nuevoAudio;
+    }
+    
+    public void setNuevoAudio(int num)
+    {
+        this.nuevoAudio = num;
     }
     
     public int getSonandoMusica()
@@ -55,9 +70,32 @@ public class Sound {
         this.SonandoMusica = num;
     }
     
+       public int getNum()
+    {
+        return this.num;
+    }
+    
+    public void setNum()
+    {
+        System.out.println(files.length);
+        System.out.println(num);
+        if (files.length-1 == num)
+        {
+            this.num = 0;
+        }
+        else
+        {
+            this.num++;
+        }
+    }
+    
     public void pararMusica()
     {
+        
+        if(this.getSonandoMusica() == 1)
+         {
+             clip.stop();
+         }
         this.SonandoMusica = 0;
-        clip.stop();
     }
 }

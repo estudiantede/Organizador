@@ -6,17 +6,25 @@ package organizador;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import javax.swing.JPanel;
+import java.util.HashSet;
+import java.util.Set;
+import javax.swing.JLabel;
 
 /**
  *
  * @author Avaya
  */
-public class Scroll extends JPanel implements MouseWheelListener{
+public class Scroll extends JLabel implements MouseWheelListener{
 
+    public  Scroll()
+    {
+        addMouseWheelListener(this);
+    }
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         System.out.println("scroll");
+        MainFrame.setTiempo(e.getWheelRotation()*-1);
+        
     }
     
 }

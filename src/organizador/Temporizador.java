@@ -7,10 +7,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Avaya
- */
 public class Temporizador extends Thread{
     
     boolean sigaCronometro = true;
@@ -70,6 +66,10 @@ public class Temporizador extends Thread{
         while(exit == true)
             {
                 System.out.println(tiempo);
+                if (tiempo == tiempoTotal)
+                {
+                    exit = false;
+                }
                 while (sigaCronometro)
                 {
                    date = Calendar.getInstance().getTime();
@@ -88,7 +88,9 @@ public class Temporizador extends Thread{
                     }
                     System.out.println(tiempo);
                     MainFrame.setCronometro("Tiempo " + String.valueOf(tiempo));
-                    MainFrame.setBarraProgreso(CalcularPorCiento(tiempo, tiempoTotal));
+                    //MainFrame.setBarraProgreso(CalcularPorCiento(tiempo, tiempoTotal));
+                    MainFrame.setBarraProgreso((int)tiempo);
+                    
             }
             }
     }
