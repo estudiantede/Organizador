@@ -39,7 +39,9 @@ public class MainFrame implements ActionListener
     
     static int t = 20;
     
-   private JFrame frame;
+    
+    
+   private static JFrame frame;
    private JPanel paneles[];
    private JPanel subPaneles[][] = new JPanel[2][3];;
    final private int filas[] = {1, 1, 1};
@@ -76,9 +78,13 @@ public class MainFrame implements ActionListener
    private JLabel trabajado;
    private JButton trabajadoBoton;
    
+   Calendario cal = new Calendario();
+   
 //Constructor
-   public MainFrame()
+   public MainFrame() throws IOException
    {
+       
+       
        frame = creacionJFrame();
        paneles = new JPanel[3];
        
@@ -386,6 +392,16 @@ public class MainFrame implements ActionListener
         return Integer.parseInt(tiempo[1].getText());
     }
     
+    public static void setMainFrameVisible()
+    {
+        frame.setVisible(true);
+    }
+    
+    public static void setMainFrameInvisible()
+    {
+        frame.setVisible(false);
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("Click!");
@@ -469,7 +485,8 @@ public class MainFrame implements ActionListener
          //Boton calendario
         else if(e.getSource() == calendario)
         {
-        
+            Calendario.setCalendarioVisible();
+            MainFrame.setMainFrameInvisible();
         }
         
          //Botones trabajado
